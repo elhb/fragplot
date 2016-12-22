@@ -3,6 +3,8 @@ Python script to plot fragment sizes from two csv files (minIon and fragmentanal
 
 ## To install run:
 ```
+    git clone https://github.com/elhb/fragplot.git
+    cd fragplot
     python setup.py install
 ```
 
