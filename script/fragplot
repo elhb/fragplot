@@ -7,26 +7,11 @@ def main():
     #
     import sys
     import os
-    from fragplot import fragplotter
-    
-    help_message = """
-    fragplot
-    Python script to plot fragment sizes from two csv files (minIon and fragmentanalyzer).
-    
-    Usage:
-        fragplot <fragment analyzer csv> <min ion csv>
-    
-    To run on the included Example data:
-        fragplot example_data/electropherogram.csv example_data/minion.csv
+    from fragplot import fragplotter, get_args
 
-    """
+    args = get_args()
     
-    try: assert len(sys.argv) == 3
-    except AssertionError:
-        print help_message
-        sys.exit()
-    
-    plotter = fragplotter(sys.argv[1],sys.argv[2])
+    plotter = fragplotter()
     plotter.run()
 
 if __name__ == "__main__": main()
