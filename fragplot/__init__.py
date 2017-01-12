@@ -90,44 +90,49 @@ class fragplotter():
         
         for in_list,x_list,y_list in [(self.minion_csv_values,self.minion_csv_x,self.minion_csv_y),(self.minion_fq_values,self.minion_fq_x,self.minion_fq_y)]:
             
-            hist = {}
+            bin_size = self.args.bin_size
+            hist = {i-bin_size/2.0:0 for i in xrange(0,max(in_list),bin_size)}
             for  seq_length in in_list:
+                seq_length = int(round(seq_length/float(bin_size))*bin_size)-bin_size/2.0
                 try: hist[seq_length] += 1
                 except KeyError: hist[seq_length] = 1
             last_length = 0
             for seq_length, count in sorted(hist.iteritems(),key=operator.itemgetter(0)):
-                if seq_length != last_length+1:
-                    for i in xrange(last_length,seq_length,1):
-                        x_list.append(i)
-                        y_list.append(0)
+                #if seq_length != last_length+1:
+                #    for i in xrange(last_length,seq_length,1):
+                #        x_list.append(i)
+                #        y_list.append(0)
                 x_list.append(seq_length)
                 y_list.append(count)
                 last_length = seq_length
     
     def nomarlize(self, ):
-        for y_value_list in [self.fragment_analyzer_y,self.minion_csv_y,self.minion_csv_y]:
-            tmp_total = float(sum(y_value_list))
-            y_value_list = [value/tmp_total for value in y_value_list]
+        
+        for item in ['fragment_analyzer_y','minion_csv_y','minion_fq_y']:
+            tmp_total = float(sum(self.__dict__[item]))
+            self.__dict__[item] = [value/tmp_total for value in self.__dict__[item]]
         
     def plot(self, ):
         
         import matplotlib.pyplot as plt
         fig, ax_mi = plt.subplots()
-        ax_fa = ax_mi.twinx()
+        if self.fragment_analyzer_x: ax_fa = ax_mi.twinx()
         line, = ax_mi.plot(self.minion_csv_x, self.minion_csv_y, color='r')
         line, = ax_mi.plot(self.minion_fq_x, self.minion_fq_y, color='g')
-        line, = ax_fa.plot(self.fragment_analyzer_x, self.fragment_analyzer_y, color='b')
-        ax_mi.set_xlabel('Fragemnt size Base(Pair)s')
-        ax_fa.set_ylabel('Frequenzy Frag.Analyzer')
-        ax_mi.set_ylabel('Frequenzy MinIon')
+        if self.fragment_analyzer_x: line, = ax_fa.plot(self.fragment_analyzer_x, self.fragment_analyzer_y, color='b')
+        ax_mi.set_xlabel('Fragment size Base(Pair)s')
+        if self.fragment_analyzer_x: ax_fa.set_ylabel('Frequency Frag.Analyzer')
+        ax_mi.set_ylabel('Frequency MinIon')
         plt.title('Fragment size frequencies')
+        ax_mi.set_ylim(0, max(self.minion_csv_y+self.minion_fq_y))
+        if self.fragment_analyzer_y: ax_fa.set_ylim(0, max(self.fragment_analyzer_y))
         if self.args.range_start or self.args.range_end:
             start = 0
             end = max(self.minion_csv_x+self.minion_fq_x+self.fragment_analyzer_x)
             if self.args.range_start: start = self.args.range_start
             if self.args.range_end: end = self.args.range_end
             ax_mi.set_xlim(start, end)
-            ax_fa.set_xlim(start, end)
+            if self.fragment_analyzer_x: ax_fa.set_xlim(start, end)
         #plt.show()
         plt.savefig(self.args.out_file)
         
@@ -135,13 +140,14 @@ def get_args():
     import sys
     import argparse
     if len( sys.argv) ==1: sys.argv.append('--help')
-    parser = argparse.ArgumentParser(description='Note that you must supply either one "--minion_csv" or one "--minion_fq" as well as a "--out_file" for the program to work!')
+    parser = argparse.ArgumentParser(description='NOTE: You must supply either one "--minion_csv" or one "--minion_fq" as well as a "--out_file" for the program to work!\n ALSO: Only the sequences in the fastq that has the term "Basecall_2D_2d" in the header will be used.')
     parser.add_argument('-csv',"--minion_csv", help="minion csv filename",metavar='<file>')
     parser.add_argument('-fq',"--minion_fq", help="minion fastq filename",metavar='<file>')
     parser.add_argument('-fcsv',"--fragge_csv", help="fragmentanalyzer csv",metavar='<file>')
     parser.add_argument('-o',"--out_file", help="output .pdf or .png filename",required=True,metavar='<file>')
     parser.add_argument('-s',"--range_start",type=int, help="start of the range to plot in the pdf",metavar='<int>')
     parser.add_argument('-e',"--range_end",type=int, help="end of the range to plot in the pdf",metavar='<int>')
+    parser.add_argument('-b',"--bin_size",type=int, help="size in base pairs for the bins in the minion histograms, each point in the line represents the middle point of the bin, ie if bin size is 10 (the default value) the frequenzy off all reads with length 0-10 vill be plotted as y-value for x=5, likewise if bin_size is 100, freq of reads with lengths 0-100bp will get x=50.",metavar='<int>',default=10)
     args = parser.parse_args()
     return args
 
