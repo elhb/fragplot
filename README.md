@@ -20,7 +20,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -csv <file>, --minion_csv <file>
                         minion csv filename
-  -fq <file>, --minion_fq <file> THE FASTQ FILE STUFF DOES NOT WORK YET DON'T USE THEM!!!!
+  -fq <file>, --minion_fq <file>
                         minion fastq filename
   -fcsv <file>, --fragge_csv <file>
                         fragmentanalyzer csv
