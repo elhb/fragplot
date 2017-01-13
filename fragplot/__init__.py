@@ -90,21 +90,22 @@ class fragplotter():
         
         for in_list,x_list,y_list in [(self.minion_csv_values,self.minion_csv_x,self.minion_csv_y),(self.minion_fq_values,self.minion_fq_x,self.minion_fq_y)]:
             
-            bin_size = self.args.bin_size
-            hist = {i-bin_size/2.0:0 for i in xrange(0,max(in_list),bin_size)}
-            for  seq_length in in_list:
-                seq_length = int(round(seq_length/float(bin_size))*bin_size)-bin_size/2.0
-                try: hist[seq_length] += 1
-                except KeyError: hist[seq_length] = 1
-            last_length = 0
-            for seq_length, count in sorted(hist.iteritems(),key=operator.itemgetter(0)):
-                #if seq_length != last_length+1:
-                #    for i in xrange(last_length,seq_length,1):
-                #        x_list.append(i)
-                #        y_list.append(0)
-                x_list.append(seq_length)
-                y_list.append(count)
-                last_length = seq_length
+            if in_list:
+                bin_size = self.args.bin_size
+                hist = {i-bin_size/2.0:0 for i in xrange(0,max(in_list),bin_size)}
+                for  seq_length in in_list:
+                    seq_length = int(round(seq_length/float(bin_size))*bin_size)-bin_size/2.0
+                    try: hist[seq_length] += 1
+                    except KeyError: hist[seq_length] = 1
+                last_length = 0
+                for seq_length, count in sorted(hist.iteritems(),key=operator.itemgetter(0)):
+                    #if seq_length != last_length+1:
+                    #    for i in xrange(last_length,seq_length,1):
+                    #        x_list.append(i)
+                    #        y_list.append(0)
+                    x_list.append(seq_length)
+                    y_list.append(count)
+                    last_length = seq_length
     
     def nomarlize(self, ):
         
